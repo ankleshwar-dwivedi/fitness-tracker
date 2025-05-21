@@ -1,0 +1,113 @@
+JSON Body for API Testing
+---------------------------
+
+**Authentication Endpoints (`/api/auth`)**
+
+1.  **POST `/api/auth/register`**
+    *   Request Body:
+        ```json
+        {
+          "name": "Jane Doe",
+          "email": "jane.doe@example.com",
+          "password": "securePassword123"
+        }
+        ```
+    *   Expected Success (201 - Created): `jwt` cookie set, body with user info (id, name, email).
+
+2.  **POST `/api/auth/login`**
+    *   Request Body:
+        ```json
+        {
+          "email": "jane.doe@example.com",
+          "password": "securePassword123"
+        }
+        ```
+    *   Expected Success (200 - OK): `jwt` cookie set, body with user info.
+
+3.  **POST `/api/auth/logout`** (Requires `jwt` cookie)
+    *   Request Body: (None / Empty JSON `{}`)
+    *   Expected Success (200 - OK): `jwt` cookie cleared, message body.
+
+
+**User Profile Endpoints (`/api/profile`)** (All require `jwt` cookie)
+
+4.  **GET `/api/profile`**
+    *   Request Body: (None)
+    *   Expected Success (200 - OK): User info (id, name, email).
+
+5.  **PUT `/api/profile`**
+    *   Request Body (Example: update name):
+        ```json
+        {
+          "name": "Jane Updated Doe"
+        }
+        ```
+    *   Request Body (Example: update password):
+        ```json
+        {
+          "password": "newSecurePassword456"
+        }
+        ```
+    *   Expected Success (200 - OK): Updated user info.
+
+
+**User Status Endpoints (`/api/profile/status`)** (All require `jwt` cookie)
+
+6.  **GET `/api/profile/status`**
+    *   Request Body: (None)
+    *   Expected Success (200 - OK): User status object (or default/404 if not set).
+
+7.  **PUT `/api/profile/status`** (Upsert: Creates if not exists, updates if it does)
+    *   Request Body:
+        ```json
+        {
+          "height": 165,
+          "weight": 60,
+          "goalWeight": 58,
+          "age": 28,
+          "gender": "female",
+          "activityLevel": "lightlyActive",
+          "goal": "Cutting"
+        }
+        ```
+    *   Expected Success (200 - OK): The created or updated status object.
+
+
+**User Meal Plan Endpoints (`/api/profile/meal-plans/:date`)** (All require `jwt` cookie)
+    *Replace `:date` with a valid date string, e.g., `2024-03-15`*
+
+8.  **GET `/api/profile/meal-plans/2024-03-15`**
+    *   Request Body: (None)
+    *   Expected Success (200 - OK): Meal plan object for the date (or default/404).
+
+9.  **PUT `/api/profile/meal-plans/2024-03-15`** (Upsert)
+    *   Request Body:
+        ```json
+        {
+          "meal1": "Scrambled Eggs with Spinach",
+          "meal2": "Grilled Chicken Salad with Vinaigrette",
+          "meal3": "Baked Cod with Roasted Vegetables",
+          "meal4": "Protein Smoothie",
+          "meal5": "",
+          "snacks": "Apple slices with almond butter"
+        }
+        ```
+    *   Expected Success (200 - OK): The created or updated meal plan object.
+
+
+**User Water Intake Endpoints (`/api/profile/water-intake/:date`)** (All require `jwt` cookie)
+    *Replace `:date` with a valid date string, e.g., `2024-03-15`*
+
+10. **GET `/api/profile/water-intake/2024-03-15`**
+    *   Request Body: (None)
+    *   Expected Success (200 - OK): Water intake object for the date (e.g., `{"litersDrank": 0}` if new, or existing value).
+
+11. **PUT `/api/profile/water-intake/2024-03-15`** (Upsert: Sets the total for the day)
+    *   Request Body:
+        ```json
+        {
+          "litersDrank": 2.5
+        }
+        ```
+    *   Expected Success (200 - OK): The created or updated water intake object.
+
