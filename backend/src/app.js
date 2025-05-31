@@ -13,6 +13,9 @@ import userProfileRoutes from './features/userProfile/userProfile.routes.js';
 import userStatusRoutes from './features/userStatus/userStatus.routes.js';
 import mealPlanRoutes from './features/mealPlans/mealPlan.routes.js';
 import waterIntakeRoutes from './features/waterIntake/waterIntake.routes.js';
+import adminRoutes from './features/admin/admin.routes.js'; // Add this
+import chatbotRoutes from './features/chatbot/chatbot.routes.js';
+import googleCalendarRoutes from './features/googleCalendar/googleCalendar.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,11 +47,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // API Routes
+app.use('/api/admin', adminRoutes); // Add this before other generic routes if necessary
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', userProfileRoutes); // Basic user profile (name, email)
 app.use('/api/profile/status', userStatusRoutes); // Diet/physical status
 app.use('/api/profile/meal-plans', mealPlanRoutes); // User-specific meal plans
 app.use('/api/profile/water-intake', waterIntakeRoutes); // User-specific water intake
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/google-calendar', googleCalendarRoutes);
 
 
 // Serve frontend in production

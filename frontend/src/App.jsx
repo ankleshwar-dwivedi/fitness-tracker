@@ -12,18 +12,21 @@ import RegisterPage from './pages/Auth/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import MealPlanPage from './pages/MealPlanPage';
-// import NotFoundPage from './pages/NotFoundPage'; // Optional
 
 // Components
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import ChatbotDialog from './components/Chatbot/ChatbotDialog'; // Import Chatbot
 
 function AppContent() {
   const { user, loading } = useAuth();
 
-  // Optional: Redirect root path based on auth status
-  // If still loading auth status, maybe show nothing or a loader?
-  if (loading && !user) {
-      return null; // Or a global loading indicator
+  if (loading && !user && window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+      // If loading and not on public auth pages, don't render routes yet to avoid flashes
+      return (
+        <div className="flex justify-center items-center h-screen">
+          {/* You might want a more global loading spinner here from AuthContext */}
+        </div>
+      );
   }
 
   return (
@@ -31,28 +34,20 @@ function AppContent() {
       <Navbar />
       <main className="pt-16"> {/* Add padding top to avoid content going under fixed navbar */}
         <Routes>
-          {/* Public Routes */}
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
           <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} />
-
-           {/* Redirect root based on auth */}
           <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
 
-
-          {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/meal-plan" element={<MealPlanPage />} />
-             {/* Add other protected routes here */}
           </Route>
 
-          {/* Fallback 404 Route - Optional */}
-          {/* <Route path="*" element={<NotFoundPage />} /> */}
-           <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} /> {/* Or redirect to home/login */}
-
+          <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
         </Routes>
       </main>
+      {user && <ChatbotDialog />} {/* Render ChatbotDialog if user is logged in */}
     </>
   );
 }
