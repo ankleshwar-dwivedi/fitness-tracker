@@ -26,6 +26,7 @@ const userSchema = mongoose.Schema(
     googleAccessToken: { type: String },
     googleRefreshToken: { type: String },
     googleTokenExpiryDate: { type: Date },
+    googleId: { type: String, unique: true, sparse: true }, // For Google Sign-In
     isGoogleCalendarAuthorized: {
       type: Boolean,
       default: false,

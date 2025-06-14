@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+
+/* Add this for the popup animation */
+@keyframes slideInRightSubtle {
+  from {
+    transform: translateX(50px); /* Start further off-screen */
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right-subtle {
+  animation: slideInRightSubtle 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Optional: Add some subtle keyframes for landing page elements */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-down { animation: fadeInDown 0.7s ease-out forwards; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.7s ease-out forwards; }
+
+/* Utility for animation delays if needed (Tailwind doesn't have these by default) */
+.animation-delay-200 { animation-delay: 0.2s; }
+.animation-delay-400 { animation-delay: 0.4s; }
+.animation-delay-600 { animation-delay: 0.6s; }

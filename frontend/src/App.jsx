@@ -1,53 +1,98 @@
 // src/App.jsx
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-// Layout
 import Navbar from './components/Layout/Navbar';
+import LoadingSpinner from './components/Common/LoadingSpinner';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
+import ChatbotDialog from './components/Chatbot/ChatbotDialog';
 
-// Pages
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/Auth/LoginPage';
 import RegisterPage from './pages/Auth/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import MealPlanPage from './pages/MealPlanPage';
 
-// Components
-import ProtectedRoute from './components/Auth/ProtectedRoute';
-import ChatbotDialog from './components/Chatbot/ChatbotDialog'; // Import Chatbot
+// This component handles the redirect FROM Google OAuth AFTER backend has processed the code.
+// Its sole job is to trigger a re-check of auth status in AuthContext and then navigate.
+const GoogleAuthSuccessRedirectHandler = () => {
+    const { checkAuthStatus } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // console.log("GoogleAuthSuccessRedirectHandler: Mounted. Triggering auth status check.");
+        // The backend has set the JWT cookie. Now, tell AuthContext to verify it.
+        checkAuthStatus(false) // Pass false: this is not the *initial* app load check
+            .then(() => {
+                // console.log("GoogleAuthSuccessRedirectHandler: Auth status re-checked. Navigating to dashboard.");
+                navigate('/dashboard', { replace: true });
+            })
+            .catch(err => {
+                console.error("GoogleAuthSuccessRedirectHandler: Error during post-Google-auth status check:", err);
+                navigate('/login?error=google_session_verification_failed', { replace: true });
+            });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // CRITICAL: Empty deps array. This effect runs ONLY ONCE on mount.
+
+    return (
+        <div className="flex flex-col justify-center items-center min-h-screen pt-16">
+            <LoadingSpinner />
+            <p className="mt-4 text-gray-600">Finalizing Google Sign-In...</p>
+        </div>
+    );
+};
 
 function AppContent() {
-  const { user, loading } = useAuth();
+  // `initialAuthLoading` from useAuth() is true ONLY during the very first app-wide auth check.
+  // `user` is null until that check completes or if user is not logged in.
+  const { user, initialAuthLoading } = useAuth();
+  const location = useLocation();
 
-  if (loading && !user && window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-      // If loading and not on public auth pages, don't render routes yet to avoid flashes
-      return (
-        <div className="flex justify-center items-center h-screen">
-          {/* You might want a more global loading spinner here from AuthContext */}
+  // If AuthContext is performing its initial load, show a global loading state.
+  // This prevents routes from rendering/redirecting prematurely.
+  if (initialAuthLoading) {
+    return (
+        <div className="flex flex-col min-h-screen">
+            {/* Optionally show Navbar even during this initial load if it doesn't depend on user state for core rendering */}
+            {/* <Navbar /> */}
+            <main className="flex-grow flex justify-center items-center pt-16">
+                <LoadingSpinner /> Loading Application...
+            </main>
         </div>
-      );
+    );
   }
 
+  // Once initialAuthLoading is false, we know the initial user state (null or user object).
   return (
     <>
-      <Navbar />
-      <main className="pt-16"> {/* Add padding top to avoid content going under fixed navbar */}
+      <Navbar /> {/* Navbar can now safely access `user` from useAuth() */}
+      <main className="pt-16 bg-gray-50 min-h-[calc(100vh-4rem)]"> {/* Ensure main content area fills viewport */}
         <Routes>
-          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
-          <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} />
-          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+          {/* Publicly accessible routes */}
+          <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+          <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+          <Route path="/register" element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />} />
+          <Route path="/auth/google/success" element={<GoogleAuthSuccessRedirectHandler />} />
 
-          <Route element={<ProtectedRoute />}>
+          {/* Protected Routes - these will be rendered if `user` is truthy */}
+          <Route element={<ProtectedRoute />}> {/* ProtectedRoute also checks user & loading */}
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/meal-plan" element={<MealPlanPage />} />
+            {/* Add Admin Routes here later, wrapped in an AdminProtectedRoute if needed */}
+            {/* e.g., <Route path="/admin" element={<AdminProtectedRoute />} > <Route path="dashboard" element={<AdminDashboardPage />} /> </Route> */}
           </Route>
 
-          <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+          {/* Fallback for any unmatched routes */}
+          <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} replace />} />
         </Routes>
       </main>
-      {user && <ChatbotDialog />} {/* Render ChatbotDialog if user is logged in */}
+      {/* Chatbot: Render if user is logged in, OR if on landing page (for guest access) */}
+      { (user || (location.pathname === '/' && !initialAuthLoading)) &&
+        <ChatbotDialog limitedAccess={!user && location.pathname === '/'} />
+      }
     </>
   );
 }
