@@ -8,7 +8,13 @@ const apiClient = axios.create({
   },
   withCredentials: true,
 });
-
+//----Admin Endpoints----------
+export const getAdminStats = () => apiClient.get('/api/admin/stats');
+export const getAllAdminUsers = () => apiClient.get('/api/admin/users');
+export const getAdminUserById = (userId) => apiClient.get(`/api/admin/users/${userId}`);
+export const updateAdminUser = (userId, userData) => apiClient.put(`/api/admin/users/${userId}`, userData);
+export const adminResetUserPassword = (userId) => apiClient.post(`/api/admin/users/${userId}/reset-password`);
+export const deleteAdminUser = (userId) => apiClient.delete(`/api/admin/users/${userId}`);
 // --- Authentication Endpoints ---
 export const registerUser = (userData) => apiClient.post('/api/auth/register', userData);
 export const loginUser = (credentials) => apiClient.post('/api/auth/login', credentials);
