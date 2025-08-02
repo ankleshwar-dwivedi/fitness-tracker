@@ -16,6 +16,9 @@ import waterIntakeRoutes from './features/waterIntake/waterIntake.routes.js';
 import adminRoutes from './features/admin/admin.routes.js'; // Admin
 import chatbotRoutes from './features/chatbot/chatbot.routes.js';
 import googleCalendarRoutes from './features/googleCalendar/googleCalendar.routes.js';
+import dashboardRoutes from './features/dashboard/dashboard.routes.js';
+import externalApiRoutes from './features/external-apis/externalApis.routes.js';
+import workoutRoutes from './features/workouts/workout.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,13 +50,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // API Routes
-app.use('/api/admin', adminRoutes); // Add this before other generic routes if necessary
+app.use('/api/admin', adminRoutes); // admin routes
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', userProfileRoutes); // Basic user profile (name, email)
 app.use('/api/profile/status', userStatusRoutes); // Diet/physical status
-app.use('/api/profile/meal-plans', mealPlanRoutes); // User-specific meal plans
-app.use('/api/profile/water-intake', waterIntakeRoutes); // User-specific water intake
+app.use('/api/meal-plans', mealPlanRoutes); // Renaming from /api/profile/meal-plans
+app.use('/api/water-intake', waterIntakeRoutes); // Renaming from /api/profile/water-intake
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/dashboard', dashboardRoutes); // today dashboard
+app.use('/api/external-apis', externalApiRoutes); // external
+app.use('/api/workouts', workoutRoutes); // workouts
 app.use('/api/google-calendar', googleCalendarRoutes);
 
 

@@ -5,7 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Button from '../Common/Button';
 
 const Navbar = () => {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, actionLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -13,60 +13,50 @@ const Navbar = () => {
     navigate('/login'); // Redirect to login after logout
   };
 
-  const activeStyle = "text-blue-600 font-semibold border-b-2 border-blue-600";
-  const inactiveStyle = "text-gray-600 hover:text-blue-600";
+  const activeStyle = "text-indigo-600 font-semibold border-b-2 border-indigo-600";
+  const inactiveStyle = "text-gray-600 hover:text-indigo-600";
+  const navLinkClass = ({ isActive }) => `${isActive ? activeStyle : inactiveStyle} px-3 py-2 text-sm font-medium transition`;
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-white shadow-md sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center text-xl font-bold text-blue-600">
-              {/* Optional Logo */}
-              {/* <img className="h-8 w-auto mr-2" src="/logo.png" alt="Logo" /> */}
+            <Link to="/" className="flex-shrink-0 flex items-center text-xl font-bold text-indigo-600">
               FitTrack
             </Link>
           </div>
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                <NavLink
-                  to="/dashboard"
-                  className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} px-3 py-2 text-sm font-medium transition`}
-                >
-                  Dashboard
-                </NavLink>
-                 <NavLink
-                  to="/meal-plan"
-                  className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} px-3 py-2 text-sm font-medium transition`}
-                >
-                  Meal Plan
-                </NavLink>
-                <NavLink
-                  to="/profile"
-                  className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} px-3 py-2 text-sm font-medium transition`}
-                >
-                  Profile
-                </NavLink>
+                {/* --- Conditional Links Based on Role --- */}
+                {user.isAdmin ? (
+                  <>
+                    {/* Admin Links */}
+                    <NavLink to="/admin/dashboard" className={navLinkClass}>Admin Dashboard</NavLink>
+                    <NavLink to="/admin/users" className={navLinkClass}>Manage Users</NavLink>
+                  </>
+                ) : (
+                  <>
+                    {/* Regular User Links */}
+                    <NavLink to="/dashboard" className={navLinkClass}>Today</NavLink>
+                    <NavLink to="/meal-plan" className={navLinkClass}>Meal Plan</NavLink>
+                    <NavLink to="/workouts" className={navLinkClass}>Workouts</NavLink>
+                    <NavLink to="/water" className={navLinkClass}>Water</NavLink>
+                    <NavLink to="/profile" className={navLinkClass}>Profile</NavLink>
+                  </>
+                )}
+                
+                <div className="h-6 w-px bg-gray-300" />
                 <span className="text-gray-700 text-sm hidden md:block">Hi, {user.name}!</span>
-                <Button onClick={handleLogout} variant="secondary" size="sm" className="text-sm" isLoading={loading}>
+                <Button onClick={handleLogout} variant="secondary" size="sm" className="text-sm" isLoading={actionLoading}>
                   Logout
                 </Button>
               </>
             ) : (
               <>
-                <NavLink
-                  to="/login"
-                  className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} px-3 py-2 text-sm font-medium transition`}
-                >
-                  Login
-                </NavLink>
-                <NavLink
-                  to="/register"
-                  className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} px-3 py-2 text-sm font-medium transition`}
-                >
-                  Register
-                </NavLink>
+                <NavLink to="/login" className={navLinkClass}>Login</NavLink>
+                <NavLink to="/register" className={navLinkClass}>Register</NavLink>
               </>
             )}
           </div>

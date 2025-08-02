@@ -2,63 +2,65 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  timeout: 15000, // Increased timeout
+  headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
-//----Admin Endpoints----------
-export const getAdminStats = () => apiClient.get('/api/admin/stats');
-export const getAllAdminUsers = () => apiClient.get('/api/admin/users');
-export const getAdminUserById = (userId) => apiClient.get(`/api/admin/users/${userId}`);
-export const updateAdminUser = (userId, userData) => apiClient.put(`/api/admin/users/${userId}`, userData);
-export const adminResetUserPassword = (userId) => apiClient.post(`/api/admin/users/${userId}/reset-password`);
-export const deleteAdminUser = (userId) => apiClient.delete(`/api/admin/users/${userId}`);
-// --- Authentication Endpoints ---
+
+// --- Authentication & User Profile ---
 export const registerUser = (userData) => apiClient.post('/api/auth/register', userData);
 export const loginUser = (credentials) => apiClient.post('/api/auth/login', credentials);
 export const logoutUser = () => apiClient.post('/api/auth/logout');
-
-// --- User Profile Endpoints ---
 export const getProfile = () => apiClient.get('/api/profile');
 export const updateProfile = (profileData) => apiClient.put('/api/profile', profileData);
-
-// --- User Status Endpoints ---
 export const getStatus = () => apiClient.get('/api/profile/status');
 export const updateStatus = (statusData) => apiClient.put('/api/profile/status', statusData);
+export const getWaterIntake = (date) => apiClient.get(`/api/water-intake/${date}`);
+export const updateWaterIntake = (date, waterData) => apiClient.put(`/api/water-intake/${date}`, waterData);
 
-// --- User Meal Plan Endpoints ---
-export const getMealPlan = (date) => apiClient.get(`/api/profile/meal-plans/${date}`);
-export const updateMealPlan = (date, mealPlanData) => apiClient.put(`/api/profile/meal-plans/${date}`, mealPlanData);
-
-// --- User Water Intake Endpoints ---
-export const getWaterIntake = (date) => apiClient.get(`/api/profile/water-intake/${date}`);
-export const updateWaterIntake = (date, waterIntakeData) => apiClient.put(`/api/profile/water-intake/${date}`, waterIntakeData);
-
-// --- Chatbot Endpoints ---
+// --- Chatbot ---
 export const sendChatMessage = (payload) => apiClient.post('/api/chatbot/message', payload);
 
-// --- Google Calendar Endpoints ---
-// Note: Authorization is a redirect, so no direct apiClient call, but we need the status.
+// --- Google Calendar ---
 export const getGoogleCalendarAuthStatus = () => apiClient.get('/api/google-calendar/status');
-// The /api/google-calendar/authorize endpoint will be used as a direct link href
 export const listGoogleCalendarEvents = () => apiClient.get('/api/google-calendar/events');
 export const createGoogleCalendarEvent = (eventData) => apiClient.post('/api/google-calendar/events', eventData);
 export const updateGoogleCalendarEvent = (eventId, eventData) => apiClient.put(`/api/google-calendar/events/${eventId}`, eventData);
-// export const deleteGoogleCalendarEvent = (eventId) => apiClient.delete(`/api/google-calendar/events/${eventId}`);
 
+// === PHASE TWO ENDPOINTS ===
 
-// --- Error Handling (Optional Interceptor) ---
+// --- Dashboard ---
+export const getTodaySummary = () => apiClient.get('/api/dashboard/today-summary');
+
+// --- External APIs (Proxy) ---
+export const searchFoodNutrition = (query) => apiClient.get(`/api/external-apis/food-nutrition`, { params: { query } });
+export const getCaloriesBurnedForActivity = (activity, duration_min, weight_kg) => apiClient.get(`/api/external-apis/calories-burned`, { params: { activity, duration_min, weight_kg } });
+
+// --- Meal Plans (New Structure) ---
+export const getMealPlanForDate = (date) => apiClient.get(`/api/meal-plans/${date}`);
+export const saveMealPlanForDate = (date, mealPlanData) => apiClient.put(`/api/meal-plans/${date}`, mealPlanData);
+
+// --- Workout Logs ---
+export const getWorkoutLogForDate = (date) => apiClient.get(`/api/workouts/${date}`);
+export const addExerciseToLog = (date, exerciseData) => apiClient.post(`/api/workouts/${date}`, exerciseData);
+export const removeExerciseFromLog = (date, exerciseId) => apiClient.delete(`/api/workouts/${date}/${exerciseId}`);
+export const updateExerciseInLog = (date, exerciseId, exerciseData) => apiClient.put(`/api/workouts/${date}/${exerciseId}`, exerciseData);
+
+// --- Admin ---
+export const getAdminAnalytics = () => apiClient.get('/api/admin/analytics');
+export const getAllUsers = () => apiClient.get('/api/admin/users');
+export const deleteUserById = (userId) => apiClient.delete(`/api/admin/users/${userId}`);
+export const resetUserPassword = (userId, newPassword) => apiClient.put(`/api/admin/users/${userId}/reset-password`, { newPassword });
+
+// --- Global Error Handling Interceptor ---
 apiClient.interceptors.response.use(
   response => response,
   error => {
-    if (error.response && error.response.status === 401) {
-      console.error("Unauthorized access - potentially redirecting to login.");
-      // Consider how to handle this globally, e.g., AuthContext might clear user
-      // if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-      //    window.location.href = '/login';
-      // }
+    if (error.response && error.response.status === 401 && window.location.pathname !== '/login') {
+      // Automatically log out on 401 from server if not on the login page
+      console.error("Unauthorized (401). Token may be invalid. Forcing logout.");
+      // This is an aggressive but safe strategy
+      // window.location.href = '/login'; 
     }
     return Promise.reject(error);
   }
