@@ -8,18 +8,19 @@ import Button from '../../components/Common/Button';
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // Destructure `authActionError` as `error` for display, and `setAuthActionError`
+  // CORRECTED: Destructure the new state and setter names from useAuth.
+  // We alias `authActionError` to `error` for easier use in the JSX.
   const { login, actionLoading, authActionError: error, setAuthActionError } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setAuthActionError(null); // Clear previous errors using the correct setter
+    setAuthActionError(null); // CORRECTED: Use the correct setter function.
     const success = await login(email, password);
     if (success) {
       navigate('/dashboard'); // Redirect to dashboard on successful login
     }
-    // If not success, `authActionError` will be set by the `login` function in AuthContext
+    // If login fails, `authActionError` is automatically set inside the login function in AuthContext.
   };
 
   return (
@@ -52,6 +53,7 @@ const LoginPage = () => {
           />
 
           <div>
+            {/* CORRECTED: Use `actionLoading` for button state */}
             <Button type="submit" variant="primary" className="w-full" isLoading={actionLoading} disabled={actionLoading}>
               Sign in
             </Button>
@@ -63,7 +65,7 @@ const LoginPage = () => {
             Register here
           </Link>
         </p>
-        {/* Optional: Add Google Sign-In button here too */}
+        {/* Add Google Sign-In button here too */}
         {/* <div className="mt-6">
           <p className="text-center text-sm text-gray-500">OR</p>
           <Button

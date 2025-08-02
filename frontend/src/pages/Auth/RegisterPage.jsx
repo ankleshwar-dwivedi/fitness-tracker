@@ -1,4 +1,5 @@
 // src/pages/Auth/RegisterPage.jsx
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -11,12 +12,13 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [formError, setFormError] = useState(''); // For client-side validation like password mismatch
-  const { register, loading, error, setError } = useAuth();
+  // CORRECTED: Destructure the new state and setter names from useAuth.
+  const { register, actionLoading, authActionError: error, setAuthActionError } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Clear backend error
+    setAuthActionError(null); // CORRECTED: Use the correct setter for backend errors.
     setFormError(''); // Clear frontend error
 
     if (password !== confirmPassword) {
@@ -32,6 +34,7 @@ const RegisterPage = () => {
     if (success) {
       navigate('/dashboard'); // Redirect to dashboard on successful registration
     }
+    // If registration fails, `authActionError` is automatically set inside the register function in AuthContext.
   };
 
   return (
@@ -83,7 +86,8 @@ const RegisterPage = () => {
           />
 
           <div>
-            <Button type="submit" variant="primary" className="w-full" isLoading={loading} disabled={loading}>
+            {/* CORRECTED: Use `actionLoading` for button state */}
+            <Button type="submit" variant="primary" className="w-full" isLoading={actionLoading} disabled={actionLoading}>
               Register
             </Button>
           </div>

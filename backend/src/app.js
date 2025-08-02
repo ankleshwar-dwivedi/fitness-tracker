@@ -13,7 +13,7 @@ import userProfileRoutes from './features/userProfile/userProfile.routes.js';
 import userStatusRoutes from './features/userStatus/userStatus.routes.js';
 import mealPlanRoutes from './features/mealPlans/mealPlan.routes.js';
 import waterIntakeRoutes from './features/waterIntake/waterIntake.routes.js';
-import adminRoutes from './features/admin/admin.routes.js'; // Add this
+import adminRoutes from './features/admin/admin.routes.js'; // Admin
 import chatbotRoutes from './features/chatbot/chatbot.routes.js';
 import googleCalendarRoutes from './features/googleCalendar/googleCalendar.routes.js';
 

@@ -1,0 +1,283 @@
+API Testing Guide for Postman
+Here is a comprehensive text guide you can use to set up your API testing in Postman.
+Generated text
+# FitTrack API Postman Testing Guide
+
+This guide provides a structured way to test all backend API endpoints for the FitTrack application using Postman.
+
+## 1. Postman Setup
+
+### A. Environment Variables
+First, set up an Environment in Postman to manage variables.
+1. Click the "Environments" tab on the left.
+2. Click the `+` icon to create a new environment. Name it "FitTrack Dev".
+3. Add the following variable:
+   - **Variable:** `baseUrl`
+   - **Initial Value:** `http://localhost:5123`
+
+### B. Cookie Management
+Postman automatically handles cookies. After you successfully log in using the "Login User" request, Postman will save the `jwt` cookie and automatically send it with all subsequent requests to `{{baseUrl}}`. You don't need to manually set any authorization headers for token-based auth.
+
+---
+
+## 2. API Requests Collection
+
+Create a new "Collection" in Postman named "FitTrack API". You can create folders inside it for organization.
+
+### Folder: Authentication
+
+#### 1. Register a New User
+- **Method:** `POST`
+- **URL:** `{{baseUrl}}/api/auth/register`
+- **Headers:**
+  - `Content-Type`: `application/json`
+- **Body:** (select `raw` and `JSON`)
+  ```json
+  {
+      "name": "Test User",
+      "email": "testuser1@example.com",
+      "password": "password123"
+  }
+Use code with caution.
+Text
+Success Response (201 Created):
+Returns the user object (without password).
+Sets the jwt HTTP-only cookie.
+Error Response (400 Bad Request):
+If email already exists.
+If data is invalid.
+2. Login User
+This is the most important request, as it establishes your authenticated session for all other tests.
+Method: POST
+URL: {{baseUrl}}/api/auth/login
+Headers:
+Content-Type: application/json
+Body: (select raw and JSON)
+Generated json
+{
+    "email": "testuser1@example.com",
+    "password": "password123"
+}
+Use code with caution.
+Json
+Success Response (200 OK):
+Returns the user object.
+Crucially, sets the jwt HTTP-only cookie. Postman will now be authenticated.
+Error Response (401 Unauthorized):
+If credentials are invalid.
+3. Logout User
+This will clear your authentication cookie in Postman.
+Method: POST
+URL: {{baseUrl}}/api/auth/logout
+Body: None
+Success Response (200 OK):
+Returns a success message.
+Clears the jwt cookie. After this, protected routes will fail with a 401.
+Folder: User Profile & Status
+(These requests require you to be logged in first)
+1. Get User Profile
+Method: GET
+URL: {{baseUrl}}/api/profile
+Success Response (200 OK):
+Returns the logged-in user's profile data (id, name, email).
+2. Update User Profile (Name/Password)
+Method: PUT
+URL: {{baseUrl}}/api/profile
+Headers:
+Content-Type: application/json
+Body (Update Name):
+Generated json
+{
+    "name": "Test User Updated"
+}
+Use code with caution.
+Json
+Body (Update Password):
+Generated json
+{
+    "password": "newpassword456"
+}
+Use code with caution.
+Json
+Success Response (200 OK):
+Returns the updated user object.
+3. Get Fitness Status
+Method: GET
+URL: {{baseUrl}}/api/profile/status
+Success Response (200 OK or 404 Not Found):
+Returns the user's fitness status object if it exists.
+Returns a 404 if no status has been created yet.
+4. Create/Update Fitness Status
+Method: PUT
+URL: {{baseUrl}}/api/profile/status
+Headers:
+Content-Type: application/json
+Body:
+Generated json
+{
+  "height": 180,
+  "weight": 75.5,
+  "goalWeight": 72,
+  "age": 30,
+  "gender": "male",
+  "activityLevel": "active",
+  "goal": "Maintenance"
+}
+Use code with caution.
+Json
+Success Response (201 Created or 200 OK):
+Returns the created or updated status object.
+Folder: Meal Plans & Water Intake
+(These requests require you to be logged in first)
+1. Get Meal Plan for a Specific Date
+Method: GET
+URL: {{baseUrl}}/api/profile/meal-plans/2025-08-10 (Change date as needed)
+Success Response (200 OK):
+Returns the meal plan object for that date (or a default empty one if none exists).
+2. Create/Update Meal Plan for a Specific Date
+Method: PUT
+URL: {{baseUrl}}/api/profile/meal-plans/2025-08-10 (Change date as needed)
+Headers:
+Content-Type: application/json
+Body:
+Generated json
+{
+    "meal1": "Oatmeal with berries",
+    "meal2": "Chicken salad sandwich",
+    "meal3": "Salmon with roasted vegetables",
+    "snacks": "Apple with peanut butter"
+}
+Use code with caution.
+Json
+Success Response (201 Created or 200 OK):
+Returns the created or updated meal plan object.
+3. Get Water Intake for a Specific Date
+Method: GET
+URL: {{baseUrl}}/api/profile/water-intake/2025-08-10 (Change date as needed)
+Success Response (200 OK):
+Returns the water intake object (or a default one with 0 liters).
+4. Create/Update Water Intake for a Specific Date
+Method: PUT
+URL: {{baseUrl}}/api/profile/water-intake/2025-08-10 (Change date as needed)
+Headers:
+Content-Type: application/json
+Body:
+Generated json
+{
+    "litersDrank": 2.5
+}
+Use code with caution.
+Json
+Success Response (201 Created or 200 OK):
+Returns the created or updated water intake object.
+Folder: Chatbot
+(These requests require you to be logged in first for the main flow)
+1. Get Initial Chatbot Message
+Method: POST
+URL: {{baseUrl}}/api/chatbot/message
+Headers:
+Content-Type: application/json
+Body:
+Generated json
+{
+    "currentState": null
+}
+Use code with caution.
+Json
+Success Response (200 OK):
+Returns the initial message, options, and newState ("INITIAL").
+2. Select an Option (e.g., "Log Meal")
+Method: POST
+URL: {{baseUrl}}/api/chatbot/message
+Headers:
+Content-Type: application/json
+Body:
+Generated json
+{
+    "currentState": "INITIAL",
+    "selectedOption": "Log Meal"
+}
+Use code with caution.
+Json
+Success Response (200 OK):
+Returns the next message, new options (Breakfast, Lunch, etc.), and newState ("LOG_MEAL_TYPE_SELECT").
+3. Select a Meal Type (e.g., "Breakfast")
+Method: POST
+URL: {{baseUrl}}/api/chatbot/message
+Headers:
+Content-Type: application/json
+Body:
+Generated json
+{
+    "currentState": "LOG_MEAL_TYPE_SELECT",
+    "selectedOption": "Breakfast"
+}
+Use code with caution.
+Json
+Success Response (200 OK):
+Returns a prompt for input, expectsUserInput: true, and newState ("LOG_MEAL_INPUT").
+4. Provide User Input for Meal
+Method: POST
+URL: {{baseUrl}}/api/chatbot/message
+Headers:
+Content-Type: application/json
+Body:
+Generated json
+{
+    "currentState": "LOG_MEAL_INPUT",
+    "userInput": "Two eggs and toast"
+}
+Use code with caution.
+Json
+Success Response (200 OK):
+Returns a confirmation message, new options, and newState ("LOG_MEAL_SAVE_CONFIRM").
+Folder: Google Calendar (Testing API Endpoints)
+NOTE: The OAuth flow itself (/authorize, /callback) cannot be tested in Postman as it requires browser interaction. These requests test the API endpoints you can call after a user has successfully authorized the app via the frontend.
+1. Get Calendar Authorization Status
+Method: GET
+URL: {{baseUrl}}/api/google-calendar/status
+Success Response (200 OK):
+Generated json
+{
+    "isGoogleCalendarAuthorized": true // or false
+}
+Use code with caution.
+Json
+2. List App-Created Events
+Method: GET
+URL: {{baseUrl}}/api/google-calendar/events
+Success Response (200 OK):
+Returns an array of Google Calendar event objects.
+3. Create a New Calendar Event
+Method: POST
+URL: {{baseUrl}}/api/google-calendar/events
+Headers:
+Content-Type: application/json
+Body: (Use ISO 8601 format for dates/times)
+Generated json
+{
+    "summary": "Morning Workout",
+    "description": "Leg day at the gym.",
+    "startTime": "2025-08-11T07:00:00-05:00",
+    "endTime": "2025-08-11T08:00:00-05:00",
+    "notificationMinutes": 30
+}
+Use code with caution.
+Json
+Success Response (201 Created):
+Returns the full Google Calendar event object that was created.
+4. Update a Calendar Event
+You will need the eventId from a created event.
+Method: PUT
+URL: {{baseUrl}}/api/google-calendar/events/YOUR_EVENT_ID_HERE
+Headers:
+Content-Type: application/json
+Body:
+Generated json
+{
+    "summary": "Morning Workout - Rescheduled"
+}
+Use code with caution.
+Json
+Success Response (200 OK):
+Returns the updated Google Calendar event object.
