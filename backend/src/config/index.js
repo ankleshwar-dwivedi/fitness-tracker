@@ -10,7 +10,6 @@ const config = {
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
 
   //external apis
-  calorieNinjasApiKey: process.env.CALORIE_NINJAS_API_KEY,
   apiNinjasApiKey: process.env.API_NINJAS_API_KEY,
 
   // Google Sign-In OAuth Credentials (for user authentication)
@@ -82,11 +81,6 @@ if (config.nodeEnv !== "test") {
 }
 
 //external apis validations
-if (!config.calorieNinjasApiKey) {
-  console.warn(
-    "WARNING: CALORIE_NINJAS_API_KEY is not defined. Meal calorie lookup will not work."
-  );
-}
 if (!config.apiNinjasApiKey) {
   console.warn(
     "WARNING: API_NINJAS_API_KEY is not defined. Workout calorie burn lookup will not work."

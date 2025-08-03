@@ -31,7 +31,7 @@ import WaterIntakePage from './pages/WaterIntakePage';
 // This component handles the final step of the Google OAuth redirect
 const GoogleAuthSuccessRedirectHandler = () => {
   const { checkAuthStatus } = useAuth();
-  const navigate = useNavigate();
+  const navigate = Navigate();
   React.useEffect(() => {
     // After the backend sets the cookie and redirects here,
     // we tell the AuthContext to re-verify the session.
@@ -98,11 +98,7 @@ function AppContent() {
           {/* Protected Admin Routes: Wrapped to check for admin role */}
           <Route element={<AdminProtectedRoute />}>
             <Route path="/admin/users" element={<UserManagementPage />} />
-            {/* Future admin pages go here */}
-          </Route>
-          <Route element={<AdminProtectedRoute />}>
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />{" "}
-            {/* New Admin Dashboard Route */}
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/users" element={<UserManagementPage />} />
           </Route>
           {/* Fallback for any unmatched route */}
