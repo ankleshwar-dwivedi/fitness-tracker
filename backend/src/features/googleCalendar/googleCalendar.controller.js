@@ -68,7 +68,7 @@ const googleCalendarOAuth2Callback = asyncHandler(async (req, res) => {
     await user.save();
 
     // Redirect to a frontend success page
-    res.redirect("/profile?google-auth=success");
+   res.redirect(`http://localhost:5173/meal-plan?google-auth=success`);
   } catch (error) {
     console.error("Error exchanging token or saving to user:", error);
     res
