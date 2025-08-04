@@ -8,12 +8,15 @@ import UserWaterIntake from "../waterIntake/userWaterIntake.model.js";
 // @route       GET /api/users/profile
 // @access      Private
 const getUserProfileDetails = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password");
+  // Use req.user which is already populated by the `protect` middleware
+  const user = await User.findById(req.user._id);
+
   if (user) {
     res.status(200).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      isAdmin: user.isAdmin, // CRITICAL: Add isAdmin to the profile response
     });
   } else {
     res.status(404);
