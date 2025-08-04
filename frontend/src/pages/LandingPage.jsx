@@ -131,7 +131,6 @@ const LandingPage = () => {
                         <p className="mt-3 font-semibold text-cyan-700">- Sarah L.</p>
                     </div>
                     <div className="bg-white p-6 rounded-lg shadow-md">
-
                         <p className="text-cyan-700 italic">"Finally does it all without being complicated. The Google Calendar sync is a game-changer for me."</p>
                         <p className="mt-3 font-semibold text-cyan-700">- Mike P.</p>
                     </div>

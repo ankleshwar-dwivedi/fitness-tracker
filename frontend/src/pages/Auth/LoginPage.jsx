@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Input from '../../components/Common/Input';
 import Button from '../../components/Common/Button';
+import loginBg from '../../assets/images/loginimage.jpg';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -24,10 +25,15 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-lg shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 bg-no-repeat bg-cover"
+    style={{backgroundImage: `url(${loginBg})`}}>
+      
+      <div className="max-w-md w-full space-y-8 bg-cyan-100 p-10 rounded-lg font-normal shadow-xl transform transition-transform hover:scale-105 hover:bg-orange-50" style={{ opacity: 0.9 }}>
+        <div class="my-box text-center text-6xl text-orange-500">
+    <h1>FitTrack</h1>
+    </div>
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-indigo-700">
             Sign in to your account
           </h2>
         </div>
