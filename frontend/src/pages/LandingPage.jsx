@@ -1,5 +1,5 @@
 // src/pages/LandingPage.jsx
-import React from 'react';
+import React from 'react'; // THIS LINE FIXES THE "react is not defined" ERROR
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/Common/Button';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,31 +10,27 @@ import motivationBg from "../assets/images/motivated.jpg";
 import syncBg from "../assets/images/sync.jpg";
 
 
-
-
-
-
-// Example icons (replace with actual SVG components or images if you prefer)
+// Example icons for the features section
 const TrackIcon = () => <svg className="w-12 h-12 mx-auto mb-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>;
 const MotivateIcon = () => <svg className="w-12 h-12 mx-auto mb-3 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>;
 const SyncIcon = () => <svg className="w-12 h-12 mx-auto mb-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>;
 
 const LandingPage = () => {
-  const { user, loading: authLoading } = useAuth(); // Use authLoading
+  const { user, initialAuthLoading } = useAuth();
   const navigate = useNavigate();
 
+  // This hook handles redirecting a user if they are already logged in.
+  // It uses React.useEffect, which requires the `import React` statement.
   React.useEffect(() => {
-    // If auth is NOT loading and user IS authenticated, redirect.
-    if (!authLoading && user) {
+    if (!initialAuthLoading && user) {
       navigate('/dashboard', { replace: true });
     }
-  }, [user, authLoading, navigate]);
+  }, [user, initialAuthLoading, navigate]);
 
-  // If initial auth check is happening, or user is already defined, don't render landing content.
-  // The App.jsx routing logic and AuthContext initial loading screen will handle this.
-  // This page should only render if authLoading is false AND user is null.
-  if (authLoading || user) {
-    return null; // Or a minimal loading state if preferred, but usually handled by AuthContext/App.jsx
+  // If the initial auth check is happening or the user is already logged in,
+  // we don't need to render the landing page content.
+  if (initialAuthLoading || user) {
+    return null;
   }
 
   return (
@@ -83,7 +79,6 @@ const LandingPage = () => {
   </div>
 </section>
 
-
         {/* Features Section */}
         <section className="py-16 md:py-24 w-full">
           <div className="container mx-auto px-6">
@@ -122,7 +117,7 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Social Proof Section - Example */}
+        {/* Social Proof Section */}
         <section className="py-16 md:py-20 bg-indigo-50 w-full">
             <div   className="container mx-auto px-6 text-center h-[500px] w-full bg-cover bg-center bg-no-repeat"
                  style={{ backgroundImage: `url(${syncBg})` }}>
@@ -169,7 +164,7 @@ const LandingPage = () => {
           <p>© {new Date().getFullYear()} FitTrack. Your Health, Simplified.</p>
         </footer>
       </div>
-      {/* Google Sign-In Popup will only show if user is not logged in and not authLoading */}
+
       <GoogleSignInPopup />
     </>
   );

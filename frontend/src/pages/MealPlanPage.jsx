@@ -24,10 +24,8 @@ const MealPlanPage = () => {
   const [dateString, setDateString] = useState(getLocalDateString(selectedDate));
   
   const defaultMealPlan = {
-      breakfast: { items: [], totalCalories: 0 },
-      lunch: { items: [], totalCalories: 0 },
-      dinner: { items: [], totalCalories: 0 },
-      snacks: { items: [], totalCalories: 0 }
+      breakfast: { items: [], totalCalories: 0 }, lunch: { items: [], totalCalories: 0 },
+      dinner: { items: [], totalCalories: 0 }, snacks: { items: [], totalCalories: 0 }
   };
   const [mealPlan, setMealPlan] = useState(defaultMealPlan);
   
@@ -56,9 +54,7 @@ const MealPlanPage = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchMealPlan(dateString);
-  }, [dateString, fetchMealPlan]);
+  useEffect(() => { fetchMealPlan(dateString); }, [dateString, fetchMealPlan]);
 
   const handleSearchChange = (e) => {
     const query = e.target.value;
@@ -69,7 +65,8 @@ const MealPlanPage = () => {
     debounceTimeout.current = setTimeout(async () => {
       try {
         const res = await searchFoodNutrition(query);
-        setSearchResults(res.data.items);
+        // API-Ninjas returns an array directly, so we use res.data
+        setSearchResults(res.data);
       } catch (err) { console.error("Food search failed:", err); } 
       finally { setSearchLoading(false); }
     }, 500);
@@ -77,9 +74,13 @@ const MealPlanPage = () => {
 
   const handleAddFoodItem = (foodItem) => {
     if (!activeMealType) return;
+    // Adapt to API-Ninjas response format
     const newFoodItem = {
-      description: foodItem.name, calories: foodItem.calories, protein_g: foodItem.protein_g,
-      carbohydrates_total_g: foodItem.carbohydrates_total_g, fat_total_g: foodItem.fat_total_g,
+      description: foodItem.name,
+      calories: foodItem.calories,
+      protein_g: foodItem.protein_g,
+      carbohydrates_total_g: foodItem.carbohydrates_total_g,
+      fat_total_g: foodItem.fat_total_g,
       serving_size_g: foodItem.serving_size_g,
     };
     setMealPlan(prev => ({ ...prev, [activeMealType]: { items: [...(prev[activeMealType]?.items || []), newFoodItem] } }));
@@ -156,7 +157,6 @@ const MealPlanPage = () => {
           }}>
             <h2 className="text-xl font-semibold mb-4 capitalize text-indigo-800">{mealType}</h2>
             <ul className="space-y-2 mb-4 min-h-[60px]">
-              {/* CORRECTED FIX: Provide a fallback empty array `[]` to ensure .map always works. */}
               {(mealPlan[mealType]?.items || []).map((item, index) => (
                 <li key={index} className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
                   <div>
@@ -182,12 +182,12 @@ const MealPlanPage = () => {
           <Input id="food-search" type="text" value={searchQuery} onChange={handleSearchChange} placeholder="Search for food (e.g., '1 cup of rice')..." autoFocus />
           {searchLoading && <LoadingSpinner size="w-6 h-6 mx-auto my-4"/>}
           <ul className="max-h-60 overflow-y-auto space-y-2">
-            {searchResults.map((item, index) => (
+            {searchResults.length > 0 ? searchResults.map((item, index) => (
               <li key={index} onClick={() => handleAddFoodItem(item)} className="p-3 bg-gray-50 hover:bg-indigo-100 rounded cursor-pointer transition-colors">
-                <p className="font-semibold text-gray-800">{item.name}</p>
+                <p className="font-semibold text-gray-800 capitalize">{item.name}</p>
                 <p className="text-sm text-gray-600">{Math.round(item.calories)} kcal / {item.serving_size_g}g</p>
               </li>
-            ))}
+            )) : <p className="text-center text-sm text-gray-400 py-4">{searchQuery.length < 3 ? 'Type 3+ characters to search' : 'No results found.'}</p>}
           </ul>
       </Modal>
     </div>

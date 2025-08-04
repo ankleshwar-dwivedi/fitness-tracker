@@ -1,12 +1,9 @@
 // /backend/src/features/workouts/workout.controller.js
 import asyncHandler from '../../middleware/asyncHandler.js';
 import WorkoutLog from './workoutLog.model.js';
-import UserStatus from '../userStatus/userStatus.model.js'; // To get user weight for calorie calculations
+import { normalizeDate } from '../../utils/dateUtils.js';
 import axios from 'axios';
 import config from '../../config/index.js';
-import mongoose from 'mongoose';
-import { normalizeDate } from '../../utils/dateUtils.js'; // We'll create this file
-
 // @desc    Get workout log for a specific date
 // @route   GET /api/workouts/:date
 // @access  Private
@@ -29,45 +26,53 @@ const getWorkoutLogByDate = asyncHandler(async (req, res) => {
 // @desc    Add a new exercise to the workout log for a date
 // @route   POST /api/workouts/:date
 // @access  Private
+// @desc    Add a new exercise to the workout log for a date
+// @route   POST /api/workouts/:date
+// @access  Private
 const addExerciseToLog = asyncHandler(async (req, res) => {
   const { name, duration_min, notes } = req.body;
-  if (!name || !duration_min) {
+  if (!name || !duration_min || parseInt(duration_min) <= 0) {
     res.status(400);
-    throw new Error("Exercise name and duration are required.");
+    throw new Error("A valid exercise name and positive duration are required.");
   }
   
   const targetDate = normalizeDate(req.params.date);
   
-  // Fetch user's weight to get a more accurate calorie burn estimate
-  const userStatus = await UserStatus.findOne({ user: req.user._id }).select('weight');
-  const weight_kg = userStatus ? userStatus.weight : 70; // Default to 70kg if no status
-
-  // Call our external API proxy to get calories burned
+  // Combine duration and name for a more specific query to API-Ninjas
+  const activityQuery = `${duration_min} min ${name}`;
   let calories_burned = 0;
-  try {
-    const activityQuery = `${duration_min} min ${name}`;
-    const response = await axios.get('https://api.api-ninjas.com/v1/caloriesburned', {
-      params: { activity: name, duration: duration_min, weight: weight_kg },
-      headers: { 'X-Api-Key': config.apiNinjasApiKey },
-    });
-    // API-Ninjas returns an array, sum up total calories if multiple activities match
-    if (response.data && response.data.length > 0) {
-        calories_burned = response.data.reduce((sum, item) => sum + item.total_calories, 0);
+
+  if (config.apiNinjasApiKey) {
+    try {
+      // CORRECTED: Call the API-Ninjas endpoint with the correct parameter ('activity')
+      const response = await axios.get('https://api.api-ninjas.com/v1/caloriesburned', {
+        params: { activity: activityQuery },
+        headers: { 'X-Api-Key': config.apiNinjasApiKey },
+      });
+      // API-Ninjas returns an array; sum up total calories if multiple activities match
+      if (response.data && response.data.length > 0) {
+          calories_burned = response.data.reduce((sum, item) => sum + item.total_calories, 0);
+      }
+    } catch (apiError) {
+        console.error(`Error fetching calories burned from API-Ninjas for "${activityQuery}":`, apiError.message);
+        // Do not fail the request; just log with 0 calories
     }
-  } catch (apiError) {
-      console.error("Error fetching calories burned from API-Ninjas:", apiError.message);
-      // Don't fail the request, just log 0 calories or an estimate
+  } else {
+      console.warn("Skipping calorie burn lookup: API_NINJAS_API_KEY not configured.");
   }
 
-  const newExercise = { name, duration_min, calories_burned, notes };
+  const newExercise = {
+    name,
+    duration_min: parseInt(duration_min, 10),
+    calories_burned: Math.round(calories_burned), // Ensure it's an integer
+    notes: notes || ""
+  };
 
   let workoutLog = await WorkoutLog.findOne({ userId: req.user._id, date: targetDate });
 
   if (workoutLog) {
-    // Log exists, push new exercise to the array
     workoutLog.exercises.push(newExercise);
   } else {
-    // No log for this day, create a new one
     workoutLog = new WorkoutLog({
       userId: req.user._id,
       date: targetDate,
@@ -75,7 +80,7 @@ const addExerciseToLog = asyncHandler(async (req, res) => {
     });
   }
 
-  const updatedLog = await workoutLog.save();
+  const updatedLog = await workoutLog.save(); // pre-save hook will recalculate total
   res.status(201).json(updatedLog);
 });
 
