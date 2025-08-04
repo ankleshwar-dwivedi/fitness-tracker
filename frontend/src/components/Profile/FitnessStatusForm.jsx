@@ -12,17 +12,17 @@ const FitnessStatusForm = ({
   statusSuccess
 }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4">Fitness Status</h2>
+    <div className="bg-cyan-200 p-6 rounded-lg shadow-md ">
+      <h2 className="text-2xl text-indigo-500 font-semibold mb-4">Fitness Status</h2>
       {statusError && <p className="text-sm text-red-600 bg-red-100 p-3 rounded mb-4">{statusError}</p>}
       {statusSuccess && <p className="text-sm text-green-600 bg-green-100 p-3 rounded mb-4">{statusSuccess}</p>}
       <form onSubmit={handleStatusUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
-          id="height" name="height" label="Height (cm)" type="number"
+          id="height" name="height" label="Height (cm)" type="number" 
           value={statusData.height || ''} onChange={handleStatusChange} placeholder="e.g., 175"
         />
         <Input
-          id="weight" name="weight" label="Current Weight (kg)" type="number" step="0.1"
+          id="weight" name="weight" label="Current Weight (kg)" type="number" step="0.1" 
           value={statusData.weight || ''} onChange={handleStatusChange} placeholder="e.g., 70.5"
         />
         <Input

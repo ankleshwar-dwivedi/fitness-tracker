@@ -4,6 +4,7 @@ import { getWaterIntake, updateWaterIntake } from '../lib/apiClient';
 import Button from '../components/Common/Button';
 import Input from '../components/Common/Input';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
+import waater from "../assets/videos/water.mp4"; // ✅ Background image
 
 const getLocalDateString = (date) => {
     const d = new Date(date);
@@ -74,33 +75,57 @@ const WaterIntakePage = () => {
     if (loading) return <div className="flex justify-center p-8"><LoadingSpinner /></div>;
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-lg">
-            <h1 className="text-3xl font-bold mb-6 text-gray-800">Log Water Intake</h1>
-            <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
-                <Button onClick={() => changeDate(-1)} variant="secondary"> Previous Day </Button>
-                <input type="date" value={dateString} onChange={(e) => setDateString(e.target.value)} className="border border-gray-300 rounded px-3 py-2 text-lg font-semibold"/>
-                <Button onClick={() => changeDate(1)} variant="secondary">Next Day </Button>
-            </div>
+        <div className="relative min-h-screen overflow-hidden">
+  {/* Background Video */}
+  <video
+    autoPlay
+    loop
+    muted
+    playsInline
+    className="absolute top-0 left-0 w-full h-full object-cover z-0"
+  >
+    <source src={waater} type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
 
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                {error && <p className="text-red-500 bg-red-100 p-3 rounded mb-4">{error}</p>}
-                {success && <p className="text-green-500 bg-green-100 p-3 rounded mb-4">{success}</p>}
-                
-                <form onSubmit={handleUpdateWater}>
-                    <Input 
-                        id="litersDrank" 
-                        label={`Liters Drank on ${dateString}`}
-                        type="text"
-                        inputMode="decimal"
-                        value={waterData.litersDrank}
-                        onChange={handleWaterChange}
-                        placeholder="e.g., 2.5"
+  {/* Overlay content */}
+  <div className="relative z-10 px-4 py-8">
+        
+            <div className="container mx-auto max-w-lg bg-cyan-50/80 p-6 rounded-xl shadow-md shadow transition-transform transform hover:scale-105 hover:shadow-lg hover:bg-blue-200 hover:opacity-90 cursor-pointer">
+                <h1 className="text-3xl font-bold mb-6 text-indigo-500">Log Water Intake</h1>
+
+                <div className="flex items-center justify-between mb-6 bg-white/70 p-4 rounded-lg shadow">
+                    <Button onClick={() => changeDate(-1)} variant="primary"> Previous Day </Button>
+                    <input
+                        type="date"
+                        value={dateString}
+                        onChange={(e) => setDateString(e.target.value)}
+                        className="border border-gray-300 rounded px-3 py-2 text-lg font-semibold"
                     />
-                    <Button type="submit" isLoading={actionLoading} disabled={actionLoading} className="w-full mt-4">
-                        Save Water Intake
-                    </Button>
-                </form>
+                    <Button onClick={() => changeDate(1)} variant="primary">Next Day </Button>
+                </div>
+
+                <div className="bg-white/80 p-6 rounded-lg shadow-md">
+                    {error && <p className="text-indigo-500 bg-indigo-900 p-3 rounded mb-4">{error}</p>}
+                    {success && <p className="text-indigo-500 bg-indigo-100 p-3 rounded mb-4">{success}</p>}
+
+                    <form onSubmit={handleUpdateWater}>
+                        <Input
+                            id="litersDrank"
+                            label={`Liters Drank on ${dateString}`}
+                            type="text"
+                            inputMode="decimal"
+                            value={waterData.litersDrank}
+                            onChange={handleWaterChange}
+                            placeholder="e.g., 2.5"
+                        />
+                        <Button type="submit" isLoading={actionLoading} disabled={actionLoading} className="w-full mt-4">
+                            Save Water Intake
+                        </Button>
+                    </form>
+                </div>
             </div>
+        </div>
         </div>
     );
 };

@@ -14,7 +14,7 @@ const AccountDetailsForm = ({
 }) => {
   return (
     <div className="mb-8">
-      <h2 className="text-2xl font-semibold mb-4">Account Details</h2>
+      <h2 className="text-2xl text-indigo-500 font-semibold mb-4">Account Details</h2>
       {profileError && !profileError.includes("password") && <p className="text-sm text-red-600 bg-red-100 p-3 rounded mb-4">{profileError}</p>}
       {profileSuccess && !profileSuccess.includes("password") && <p className="text-sm text-green-600 bg-green-100 p-3 rounded mb-4">{profileSuccess}</p>}
 
@@ -27,6 +27,7 @@ const AccountDetailsForm = ({
           value={profileData.name}
           onChange={handleProfileChange}
           required
+          
         />
         <Input
           id="email"

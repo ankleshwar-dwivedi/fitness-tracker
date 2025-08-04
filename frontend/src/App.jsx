@@ -71,7 +71,7 @@ function AppContent() {
   return (
     <>
       <Navbar />
-      <main className="pt-16 bg-gray-50 min-h-[calc(100vh-4rem)]">
+      <main className="min-h-screen bg-transparent p-0 m-0">
         <Routes>
           {/* Public Routes: Wrapped in PublicRoute to redirect if already logged in */}
           <Route element={<PublicRoute />}>

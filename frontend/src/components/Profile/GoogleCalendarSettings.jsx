@@ -10,8 +10,8 @@ const GoogleCalendarSettings = ({
   // googleCalMessage // Message is handled by ProfilePage for global banner
 }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-      <h2 className="text-2xl font-semibold mb-4">Integrations</h2>
+    <div className="bg-cyan-200 p-6 rounded-lg shadow-md mb-8">
+      <h2 className="text-2xl  text-indigo-500 font-semibold mb-4">Integrations</h2>
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Google Calendar</h3>
