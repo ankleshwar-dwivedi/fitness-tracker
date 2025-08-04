@@ -5,6 +5,13 @@ import Button from '../components/Common/Button';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 import Input from '../components/Common/Input';
 import Modal from '../components/Common/Modal';
+import mealBg from "../assets/images/meals.jpg";
+import lunchBg from "../assets/images/lunch.avif";
+import dinnerBg from "../assets/images/dinner.jpg";
+import snacksBg from "../assets/images/snakcs.jpg";
+import breakfastBg from "../assets/images/breakfast.avif";
+
+
 
 const getLocalDateString = (date) => {
     const d = new Date(date);
@@ -108,6 +115,12 @@ const MealPlanPage = () => {
     setDateString(getLocalDateString(newDate));
   };
   
+  const mealbackground = {
+    breakfast: breakfastBg,
+    lunch: lunchBg,
+    dinner: dinnerBg,
+    snacks: snacksBg
+};
   const openSearchModal = (mealType) => { setSearchQuery(''); setSearchResults([]); setActiveMealType(mealType); };
   const closeSearchModal = () => setActiveMealType(null);
   
@@ -116,33 +129,45 @@ const MealPlanPage = () => {
   if (loading) return <div className="flex justify-center items-center h-64"><LoadingSpinner /></div>;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg shadow">
-        <Button onClick={() => changeDate(-1)} variant="secondary"> Previous Day </Button>
-        <input type="date" value={dateString} onChange={(e) => setDateString(e.target.value)} className="border border-gray-300 rounded px-3 py-2 text-lg font-semibold"/>
-        <Button onClick={() => changeDate(1)} variant="secondary">Next Day </Button>
+<div
+    className="min-h-screen bg-cover bg-center bg-no-repeat"
+    style={{ backgroundImage: `url(${mealBg})` }}>
+    
+    <div className="container mx-auto px-4 py-8 max-w-4xl " >
+      <div className="flex items-center justify-between mb-6 bg-cyan-100 p-4 rounded-lg shadow transition-transform transform hover:scale-105 hover:shadow-lg hover:bg-blue-200 cursor-pointer">
+        <Button onClick={() => changeDate(-1)} variant="primary"> Previous Day </Button>
+        <input type="date" value={dateString} onChange={(e) => setDateString(e.target.value)} className="border border-black rounded px-3 py-2 text-lg font-semibold"/>
+        <Button onClick={() => changeDate(1)} variant="primary">Next Day </Button>
       </div>
 
-      {error && <p className="text-red-500 bg-red-100 p-3 rounded mb-4">{error}</p>}
-      {success && <p className="text-green-500 bg-green-100 p-3 rounded mb-4">{success}</p>}
+      {error && <p className="text-indigo-900 bg-indigo-100 p-3 rounded mb-4">{error}</p>}
+      {success && <p className="text-indigo-900 bg-indigo-100 p-3 rounded mb-4">{success}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {mealTypes.map(mealType => (
-          <div key={mealType} className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4 capitalize text-gray-700">{mealType}</h2>
+          <div key={mealType} className="bg-rose-100 p-6 rounded-lg shadow-md transition-transform transform hover:scale-120 hover:shadow-lg hover:bg-blue-200 cursor-pointer"
+          style={{
+            backgroundImage: `url(${mealbackground[mealType]})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    opacity: 0.8
+ 
+          }}>
+            <h2 className="text-xl font-semibold mb-4 capitalize text-indigo-800">{mealType}</h2>
             <ul className="space-y-2 mb-4 min-h-[60px]">
               {/* CORRECTED FIX: Provide a fallback empty array `[]` to ensure .map always works. */}
               {(mealPlan[mealType]?.items || []).map((item, index) => (
                 <li key={index} className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
                   <div>
-                    <p className="font-medium text-gray-800">{item.description}</p>
-                    <p className="text-xs text-gray-500">{item.calories} kcal, {item.serving_size_g}g</p>
+                    <p className="font-medium text-indigo-900">{item.description}</p>
+                    <p className="text-xs text-indigo-900">{item.calories} kcal, {item.serving_size_g}g</p>
                   </div>
-                  <button onClick={() => handleRemoveFoodItem(mealType, index)} className="text-red-500 hover:text-red-700 text-xs font-semibold">REMOVE</button>
+                  <button onClick={() => handleRemoveFoodItem(mealType, index)} className="text-indigo-700 hover:text-indigo-300 text-xs font-semibold">REMOVE</button>
                 </li>
               ))}
             </ul>
-            <Button onClick={() => openSearchModal(mealType)} variant="secondary" className="w-full text-sm">Add Food to {mealType}</Button>
+            <Button onClick={() => openSearchModal(mealType)} variant="secondary" className="w-full text-sm text-indigo-900">Add Food to {mealType}</Button>
           </div>
         ))}
       </div>
@@ -166,6 +191,7 @@ const MealPlanPage = () => {
           </ul>
       </Modal>
     </div>
+  </div>
   );
 };
 
