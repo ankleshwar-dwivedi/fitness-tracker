@@ -96,7 +96,10 @@ const TodayPage = () => {
     return <div className="text-center text-black p-8">No summary data available to display.</div>;
   }
 
-  const noMealsLogged = Object.values(summary.today.meals).every(meal => !meal || meal.items.length === 0);
+  // ✅ Fixed line
+  const noMealsLogged = summary?.today?.meals
+    ? Object.values(summary.today.meals).every(meal => !meal?.items || meal.items.length === 0)
+    : true;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-50xl min-h-screen bg-cover bg-center" style={{ backgroundImage: `url(${pBg})` }}>
@@ -138,7 +141,7 @@ const TodayPage = () => {
               <p className="text-black text-sm">No meals logged yet for today.</p>
             ) : (
               <div className="space-y-3">
-                {Object.entries(summary.today.meals).filter(([, mealData]) => mealData?.items.length > 0).map(([mealType, mealData]) => (
+                {Object.entries(summary.today.meals || {}).filter(([, mealData]) => mealData?.items?.length > 0).map(([mealType, mealData]) => (
                   <div key={mealType}>
                     <h3 className="font-semibold capitalize text-gray-600 flex justify-between">
                       <span>{mealType}</span>
@@ -164,7 +167,7 @@ const TodayPage = () => {
                 <Button variant="primary" className="text-ys py-1 px-7">Log Workout</Button>
               </Link>
             </div>
-            {summary.today.workouts.length > 0 ? (
+            {summary.today.workouts?.length > 0 ? (
               <ul className="space-y-2">
                 {summary.today.workouts.map((ex) => (
                   <li key={ex._id} className="flex justify-between items-center text-sm">
@@ -178,27 +181,25 @@ const TodayPage = () => {
             )}
           </div>
 
-          {/* ⬇ Water Intake block moved below workouts */}
+          {/* Water Intake Block */}
           <div className="bg-cyan-100 p-6 rounded-lg shadow-md transition-transform transform hover:scale-95 hover:shadow-lg hover:bg-blue-200 cursor-pointer"
             style={{ opacity: 0.8 }}
 >
-  <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold mb-2 text-indigo-700">Water Intake</h2>
-            <p className="text-2xl font-bold text-blue-500">
-              {summary.today.waterIntakeLiters}
-              <span className="text-lg font-normal text-black"> Liters</span>
-            </p>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold mb-2 text-indigo-700">Water Intake</h2>
+              <p className="text-2xl font-bold text-blue-500">
+                {summary.today.waterIntakeLiters}
+                <span className="text-lg font-normal text-black"> Liters</span>
+              </p>
               <Link to="/water">
                 <Button variant="primary" className="text-ys py-1 px-7">Log Water</Button>
               </Link>
             </div>
-            </div>
-            
           </div>
+
         </div>
       </div>
-    
-    
+    </div>
   );
 };
 
